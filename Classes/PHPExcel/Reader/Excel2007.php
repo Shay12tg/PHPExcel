@@ -309,7 +309,7 @@ class PHPExcel_Reader_Excel2007 extends PHPExcel_Reader_Abstract implements PHPE
 
         // Sadly, some 3rd party xlsx generators don't use consistent case for filenaming
         //    so we need to load case-insensitively from the zip file
-        
+
         // Apache POI fixes
         $contents = $archive->getFromIndex(
             $archive->locateName($fileName, ZIPARCHIVE::FL_NOCASE)
@@ -875,6 +875,16 @@ class PHPExcel_Reader_Excel2007 extends PHPExcel_Reader_Abstract implements PHPE
                                                 }
                                                 break;
                                             default:
+                                                /*
+                                                    CNK:
+                                                    account for the array formulas in Excel
+                                                    @see https://stackoverflow.com/questions/3111625/phpexcel-existing-array-functions-get-converted-into-normal-functions
+                                                 */
+                                                if (isset($c->f['t'])) {
+                                                    $att = array();
+                                                    $att = $c->f;
+                                                    $docSheet->getCell($r)->setFormulaAttributes($att);
+                                                }
 //                                                echo 'Default', PHP_EOL;
                                                 if (!isset($c->f)) {
     //                                                echo 'Not a Formula', PHP_EOL;
